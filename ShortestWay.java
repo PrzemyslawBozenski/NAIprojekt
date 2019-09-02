@@ -1,7 +1,9 @@
 package citigraph;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -146,23 +148,36 @@ public class ShortestWay {
 		cityMap.addRoad(new Road(Cities.BIALYSTOK, Cities.OLSZTYN, 233));
 		cityMap.addRoad(new Road(Cities.WARSZAWA, Cities.OLSZTYN, 214));
 		
-		Cities sourceCity = Cities.GDANSK;
-		
-		ShortestWay shortestPath = new ShortestWay(cityMap, sourceCity);
-
-		// Wyswietla najkrotsza odleglosc i sciezke, ktora te odleglosc zbudowala 
-		for(Cities targetCity : Cities.values()) {
-			if (shortestPath.hasPathTo(targetCity)) {
-				System.out.printf("%s do %s (%d)  ", sourceCity.name(), targetCity.name(),
-						shortestPath.getDistanceTo(targetCity));
-				for (Road road : shortestPath.getPathTo(targetCity)) {
-					System.out.print(road);
+		List<ShortestPath> allShortestPaths = new ArrayList<ShortestPath>();
+		for (Cities sourceCity : Cities.values()) {
+//			Cities sourceCity = Cities.GDANSK;
+			ShortestWay shortestPath = new ShortestWay(cityMap, sourceCity);
+	
+			// Wyswietla najkrotsza odleglosc i sciezke, ktora te odleglosc zbudowala 
+			for(Cities targetCity : Cities.values()) {
+				if (shortestPath.hasPathTo(targetCity)) {
+					System.out.printf("%s do %s (%d)  ", sourceCity.name(), targetCity.name(),
+							shortestPath.getDistanceTo(targetCity));
+					allShortestPaths.add(
+							new ShortestPath(sourceCity, targetCity, shortestPath.getDistanceTo(targetCity)));
+					for (Road road : shortestPath.getPathTo(targetCity)) {
+						System.out.print(road);
+					}
+				} else {
+					System.out.printf("%s do %s - brak sciezki  ", sourceCity.name(), targetCity.name());
 				}
-			} else {
-				System.out.printf("%s do %s - brak sciezki  ", sourceCity.name(), targetCity.name());
+				System.out.println();
 			}
-			System.out.println();
-		}	
+		}
+		// inicjalizacja zmiennej dowolnymi danymi (odleg³oœæ 0)
+		ShortestPath maxShortestPath = new ShortestPath(Cities.BIALYSTOK, Cities.BIALYSTOK, 0L);
+		for (ShortestPath path : allShortestPaths) {
+			if (maxShortestPath.getShortestPath() < path.getShortestPath()) {
+				maxShortestPath = path;
+			}
+		}
+		System.out.printf("Najbardziej oddalone od siebie miasta: %s - %s (%d)", 
+				maxShortestPath.getSourceCity(), maxShortestPath.getTargetCity(), maxShortestPath.getShortestPath());
 	}
 
 }
